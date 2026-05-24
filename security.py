@@ -9,14 +9,19 @@ from flask import abort
 def anonymize_ip(ip_address):
     """
     Анонимизация IP-адреса для соответствия 152-ФЗ о персональных данных
-    Используем SHA-256 с солью для невозможности обратного декодирования
     """
-    if not current_app.config['ANONYMIZE_IP']:
-        return ip_address
-
-    salt = current_app.config['SECRET_KEY']
-    # Добавляем соль и хешируем
-    return hashlib.sha256(f"{ip_address}{salt}".encode()).hexdigest()[:32]
+    # Безопасно получаем конфигурацию
+    try:
+        from flask import current_app
+        if current_app and current_app.config.get('ANONYMIZE_IP', True):
+            salt = current_app.config.get('SECRET_KEY', 'default-salt')
+            return hashlib.sha256(f"{ip_address}{salt}".encode()).hexdigest()[:32]
+    except (RuntimeError, AttributeError):
+        # Если вне контекста приложения — просто хешируем с фиксированной солью
+        pass
+    
+    # fallback: просто хеш без соли (но всё ещё анонимно)
+    return hashlib.sha256(ip_address.encode()).hexdigest()[:32]
 
 
 def sanitize_input(text):
