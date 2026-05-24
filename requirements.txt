@@ -1,3 +1,8 @@
+# === Базовые инструменты сборки ===
+setuptools>=65.5.0
+wheel>=0.38.4
+
+# === Основные зависимости ===
 Flask==3.0.0
 Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.3
@@ -19,3 +24,4 @@ schedule==1.2.0
 reportlab==4.0.4
 openpyxl==3.1.2
 gunicorn==21.2.0
+greenlet==3.0.3
