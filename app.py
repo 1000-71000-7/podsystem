@@ -36,6 +36,25 @@ from openpyxl.styles import Font, Alignment, PatternFill
 app = Flask(__name__)
 app.config.from_object(Config)
 
+# Создаём контекст приложения для безопасной работы с current_app
+with app.app_context():
+    # Инициализация расширений
+    db.init_app(app)
+    cache.init_app(app)
+    
+    # Создание таблиц БД
+    db.create_all()
+    
+    # Создание admin пользователя
+    from models import User
+    admin = User.query.filter_by(username=Config.ADMIN_USERNAME).first()
+    if not admin:
+        admin = User(username=Config.ADMIN_USERNAME, role='admin', is_active=True)
+        admin.set_password(Config.ADMIN_PASSWORD)
+        db.session.add(admin)
+        db.session.commit()
+        print(f"✅ Администратор создан: {Config.ADMIN_USERNAME}")
+
 # Инициализация БД
 db.init_app(app)
 
